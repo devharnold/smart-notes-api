@@ -6,19 +6,20 @@ import (
 )
 
 type NotesMeta struct {
-	ID       int
-	UserID   int
-	FileName string
-	S3Key    string
+	ID     int    `json:"id"`
+	UserID int    `json:"user_id"`
+	Title  string `json:"title"`
+	S3Key  string `json:"s3_key"`
 }
 
-type FileRepo struct{}
+type NotesRepo struct{}
 
-func (r *FileRepo) Save(ctx context.Context, f NotesMeta) error {
-	_, err := db.Pool.Exec(
-		ctx,
-		"INSERT INTO files (user_id, filename, s3_key) VALUES ($1, $2, $3)",
-		f.UserID, f.FileName, f.S3Key,
-	)
-	return err
+func (r *NotesRepo) Save(ctx context.Context, f NotesMeta) error {
+	insertQuery := "INSERT INTO notes(user_id, title, s3_key) VALUES ($1, $2, $3) RETURNING id"
+
+	err := storage.Pool.QueryRow(ctx, insertQuery, f.UserID, f.Title, f.S3Key).Scan(&f.ID)
+	if err != nil {
+		return err
+	}
+	return nil
 }
