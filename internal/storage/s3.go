@@ -1,4 +1,4 @@
-package main
+package storage
 
 import (
 	"bytes"
@@ -14,7 +14,7 @@ import (
 
 type S3Client struct {
 	Uploader *manager.Uploader
-	Bucket	string
+	Bucket   string
 }
 
 func NewS3Client() *S3Client {
@@ -35,15 +35,15 @@ func NewS3Client() *S3Client {
 
 	return &S3Client{
 		Uploader: uploader,
-		Bucket:	  bucket,
+		Bucket:   bucket,
 	}
 }
 
 func (s *S3Client) UploadFile(ctx context.Context, key string, body []byte) (string, error) {
 	_, err := s.Uploader.Upload(ctx, &s3.PutObjectInput{
-		Bucket:	aws.String(s.Bucket),
-		Key:	aws.String(key),
-		Body:	bytes.NewReader(body),
+		Bucket: aws.String(s.Bucket),
+		Key:    aws.String(key),
+		Body:   bytes.NewReader(body),
 	})
 	if err != nil {
 		return "", err

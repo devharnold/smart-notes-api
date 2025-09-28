@@ -13,3 +13,6 @@ A secure REST API where users can register, log in, and manage personal notes. N
     - **PostgreSQL + pgx**
     - AWS S3 (storage)
     - Docker
+
+- **sync dependencies:**
+    - go mod tidy

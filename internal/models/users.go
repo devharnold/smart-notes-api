@@ -1,8 +1,9 @@
-// User model -> defines the user struct
-package main
+package models
 
 type User struct {
-	user_id		string	`json:'user_id'`
-	first_name	string	`json:'first_name'`
-	last_name	string	`json:'last_name'`
+	UserID    string `json:"user_id"`
+	UserEmail string `json:"user_email"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Password  string `json:"password"`
 }
