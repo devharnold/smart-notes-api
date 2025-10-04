@@ -1,18 +1,17 @@
 package storage
 
 import (
-	"bytes"
 	"context"
 	"log"
 	"os"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
 type S3Client struct {
+	Client   *s3.Client
 	Uploader *manager.Uploader
 	Bucket   string
 }
@@ -34,20 +33,8 @@ func NewS3Client() *S3Client {
 	}
 
 	return &S3Client{
+		Client:   client,
 		Uploader: uploader,
 		Bucket:   bucket,
 	}
-}
-
-func (s *S3Client) UploadFile(ctx context.Context, key string, body []byte) (string, error) {
-	_, err := s.Uploader.Upload(ctx, &s3.PutObjectInput{
-		Bucket: aws.String(s.Bucket),
-		Key:    aws.String(key),
-		Body:   bytes.NewReader(body),
-	})
-	if err != nil {
-		return "", err
-	}
-
-	return key, nil
 }
