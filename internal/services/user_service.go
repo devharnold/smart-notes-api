@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"smart-notes-api/internal/auth"
 	"smart-notes-api/internal/models"
@@ -33,9 +32,33 @@ func (s *UserService) Create(ctx context.Context, user *models.User) (*models.Us
 	}
 	user.Password = hashedPassword
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+	userID, err := s.repo.UploadUser(ctx, user)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to upload user: %w", err)
+	}
 
-	// TODO: Correct the return statement
-	return s.repo.UploadUser(ctx)
+	user.UserID = fmt.Sprintf("%s", userID)
+	return user, nil
+}
+
+func (s *UserService) Login(ctx context.Context, email, password string) (string, error) {
+	user, err := s.repo.GetUserByEmail(ctx, email)
+	if err != nil {
+		return "", fmt.Errorf("User not found", err)
+	}
+
+	if !auth.VerifyPassword(user.Password, password) {
+		return "", fmt.Errorf("Invalid password")
+	}
+
+	// token, err :=
+}
+
+func (s *UserService) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
+	user, err := s.repo.GetUserByEmail(ctx, email)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to get user by email: %w", err)
+	}
+
+	return user, nil
 }

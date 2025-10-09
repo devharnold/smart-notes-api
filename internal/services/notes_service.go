@@ -12,8 +12,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
-// TODO: Implement the check bucket, upload file and download files to and from s3 methods
-
 type NotesService struct {
 	Repo *repositories.NotesMeta
 	S3   *storage.S3Client
