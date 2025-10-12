@@ -3,9 +3,10 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"smart-notes-api/internal/models"
 	"smart-notes-api/internal/services"
+
+	"github.com/gin-gonic/gin"
 )
 
 type UserHandler struct {
@@ -70,7 +71,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := h.userService.Login(req.Email, req.Password)
+	token, err := h.userService.Login(c.Request.Context(), req.Email, req.Password)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
