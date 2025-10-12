@@ -19,7 +19,7 @@ func (r *UsersRepository) UploadUser(ctx context.Context, user *models.User) (in
 	// execute query
 	var userID int64
 	err := storage.Pool.QueryRow(ctx, insertQuery,
-		user.UserEmail,
+		user.Email,
 		user.FirstName,
 		user.LastName,
 	).Scan(&userID)
@@ -38,7 +38,7 @@ func (r *UsersRepository) GetUserByEmail(ctx context.Context, email string) (mod
 	selectQuery := "SELECT * FROM users WHERE user_email = $1"
 
 	err := storage.Pool.QueryRow(ctx, selectQuery, email).Scan(
-		&user.UserEmail,
+		&user.Email,
 		&user.FirstName,
 		&user.LastName,
 	)
@@ -57,7 +57,7 @@ func (r *UsersRepository) GetUserByID(ctx context.Context, id int64) (models.Use
 	selectQuery := "SELECT * FROM users WHERE id = $1"
 
 	err := storage.Pool.QueryRow(ctx, selectQuery, id).Scan(
-		&user.UserEmail,
+		&user.Email,
 		&user.FirstName,
 		&user.LastName,
 	)
