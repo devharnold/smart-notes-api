@@ -13,20 +13,18 @@ import (
 )
 
 type NotesService struct {
-	Repo *repositories.NotesMeta
+	repo *repositories.NotesMeta
 	S3   *storage.S3Client
 }
 
-type FileUpload struct {
-	Repo *repositories.NotesMeta
-	S3   *storage.S3Client
+func NewNotesService(s3 *storage.S3Client, repo *repositories.NotesMeta) *NotesService {
+	return &NotesService{
+		repo: repo,
+		S3:   s3,
+	}
 }
 
-func NewNotesService(s3 *storage.S3Client) *NotesService {
-	return &NotesService{}
-}
-
-func (up FileUpload) SaveNote(ctx context.Context, userID int, title string, content string) (string, error) {
+func (s *NotesService) SaveNote(ctx context.Context, userID int, title string, content string) (string, error) {
 	// first insert into DB, to help us get the noteID
 	meta := repositories.NotesMeta{
 		UserID: userID,
@@ -44,8 +42,8 @@ func (up FileUpload) SaveNote(ctx context.Context, userID int, title string, con
 	key := fmt.Sprintf("notes/%d/%d.txt", userID, meta.ID)
 
 	// upload note content to S3
-	_, err = up.S3.Uploader.Upload(ctx, &s3.PutObjectInput{
-		Bucket:      aws.String(up.S3.Bucket),
+	_, err = s.S3.Client.PutObject(ctx, &s3.PutObjectInput{
+		Bucket:      aws.String(s.S3.Bucket),
 		Key:         aws.String(key),
 		Body:        strings.NewReader(content),
 		ContentType: aws.String("text/plain"),
@@ -61,10 +59,10 @@ func (up FileUpload) SaveNote(ctx context.Context, userID int, title string, con
 		return "", err
 	}
 
-	return fmt.Sprintf("s3://%s/%s", up.S3.Bucket, key), nil
+	return fmt.Sprintf("s3://%s/%s", s.S3.Bucket, key), nil
 }
 
-func (up FileUpload) RetrieveNote(ctx context.Context, UserID int, title string) (string, error) {
+func (s *NotesService) RetrieveNote(ctx context.Context, UserID int, title string) (string, error) {
 	// step1: Fetch s3_key for the note
 	var s3key string
 	SelectQuery := "SELECT s3_key FROM notes WHERE user_id = $1 AND title = $2"
@@ -73,8 +71,8 @@ func (up FileUpload) RetrieveNote(ctx context.Context, UserID int, title string)
 		return "", err
 	}
 
-	output, err := up.S3.Client.GetObject(ctx, &s3.GetObjectInput{
-		Bucket: aws.String(up.S3.Bucket),
+	output, err := s.S3.Client.GetObject(ctx, &s3.GetObjectInput{
+		Bucket: aws.String(s.S3.Bucket),
 		Key:    aws.String(s3key),
 	})
 	if err != nil {
@@ -91,15 +89,15 @@ func (up FileUpload) RetrieveNote(ctx context.Context, UserID int, title string)
 }
 
 // Update the existing text in S3, but we keep the same key
-func (up FileUpload) UpdateNote(ctx context.Context, userID int, title string, newContent string) error {
+func (s *NotesService) UpdateNote(ctx context.Context, userID int, title string, newContent string) error {
 	var s3Key string
 	query := "SELECT s3_key FROM notes WHERE user_id = $1 AND title = $2"
 	if err := storage.Pool.QueryRow(ctx, query, userID, title).Scan(&s3Key); err != nil {
 		return err
 	}
 
-	_, err := up.S3.Client.PutObject(ctx, &s3.PutObjectInput{
-		Bucket:      aws.String(up.S3.Bucket),
+	_, err := s.S3.Client.PutObject(ctx, &s3.PutObjectInput{
+		Bucket:      aws.String(s.S3.Bucket),
 		Key:         aws.String(s3Key),
 		Body:        strings.NewReader(newContent),
 		ContentType: aws.String("text/plain"),
@@ -107,15 +105,15 @@ func (up FileUpload) UpdateNote(ctx context.Context, userID int, title string, n
 	return err
 }
 
-func (up FileUpload) DeleteNote(ctx context.Context, userID int, title string) error {
+func (s *NotesService) DeleteNote(ctx context.Context, userID int, title string) error {
 	var s3key string
 	selectQuery := "SELECT s3_key FROM notes WHERE user_id = $1 AND title = $2"
 	if err := storage.Pool.QueryRow(ctx, selectQuery, userID, title).Scan(&s3key); err != nil {
 		return err
 	}
 
-	_, err := up.S3.Client.DeleteObject(ctx, &s3.DeleteObjectInput{
-		Bucket: aws.String(up.S3.Bucket),
+	_, err := s.S3.Client.DeleteObject(ctx, &s3.DeleteObjectInput{
+		Bucket: aws.String(s.S3.Bucket),
 		Key:    aws.String(s3key),
 	})
 	if err != nil {

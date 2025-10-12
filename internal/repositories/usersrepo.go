@@ -8,7 +8,13 @@ import (
 	"smart-notes-api/internal/storage"
 )
 
-type UsersRepository struct{}
+type UsersRepository struct {
+	ID        int    `json:"id,omitempty"`
+	FirstName int    `json:"first_name,omitempty"`
+	LastName  int    `json:"last_name,omitempty"`
+	Email     string `json:"email" binding:"required"`
+	Password  string `json:"password" binding:"required"`
+}
 
 func (r *UsersRepository) UploadUser(ctx context.Context, user *models.User) (int64, error) {
 	ctx, cancel := context.WithTimeout(ctx, 15*time.Second)
