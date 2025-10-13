@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	// "smart-notes-api/internal/auth"
 	"smart-notes-api/internal/repositories"
 	"smart-notes-api/internal/storage"
 	"strings"
@@ -15,6 +16,7 @@ import (
 type NotesService struct {
 	repo *repositories.NotesMeta
 	S3   *storage.S3Client
+	// jwtService auth.JWTService
 }
 
 func NewNotesService(s3 *storage.S3Client, repo *repositories.NotesMeta) *NotesService {
