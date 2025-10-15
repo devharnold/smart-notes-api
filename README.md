@@ -7,7 +7,7 @@ A secure REST API where users can register, log in, and manage personal notes. N
     - CRUD operations for notes.
     - File uploads (store links in DB, files in S3).
     - Basic search (by title or content).
-    - Deployment with **Docker + AWS ECS/Fargate**.
+    - Deployment with **Docker**.
 - **Tech stack:**
     - Go (**Gin**)
     - **PostgreSQL + pgx**
