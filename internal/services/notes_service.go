@@ -14,14 +14,14 @@ import (
 )
 
 type NotesService struct {
-	repo *repositories.NotesMeta
+	Repo *repositories.NotesMeta
 	S3   *storage.S3Client
 	// jwtService auth.JWTService
 }
 
 func NewNotesService(s3 *storage.S3Client, repo *repositories.NotesMeta) *NotesService {
 	return &NotesService{
-		repo: repo,
+		Repo: repo,
 		S3:   s3,
 	}
 }

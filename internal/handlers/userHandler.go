@@ -10,11 +10,11 @@ import (
 )
 
 type UserHandler struct {
-	userService services.UserService
+	Service *services.UserService
 }
 
-func NewUserHandler(userService services.UserService) *UserHandler {
-	return &UserHandler{userService: userService}
+func NewUserHandler(s *services.UserService) *UserHandler {
+	return &UserHandler{Service: s}
 }
 
 type LoginRequest struct {
@@ -47,7 +47,7 @@ func (h *UserHandler) Register(c *gin.Context) {
 		Password:  req.Password,
 	}
 
-	createdUser, err := h.userService.Create(c.Request.Context(), user)
+	createdUser, err := h.Service.Create(c.Request.Context(), user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
@@ -71,7 +71,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := h.userService.Login(c.Request.Context(), req.Email, req.Password)
+	token, err := h.Service.Login(c.Request.Context(), req.Email, req.Password)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
@@ -86,7 +86,7 @@ func (h *UserHandler) GetUserByEmail(c *gin.Context) {
 		return
 	}
 
-	user, err := h.userService.GetUserByEmail(c.Request.Context(), req.Email)
+	user, err := h.Service.GetUserByEmail(c.Request.Context(), req.Email)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return

@@ -11,14 +11,14 @@ import (
 )
 
 type UserService struct {
-	repo       *repositories.UsersRepository
+	Repo       *repositories.UsersRepository
 	jwtService auth.JWTService
 }
 
 // the constructor
 func NewUserService(repo *repositories.UsersRepository, jwtService auth.JWTService) *UserService {
 	return &UserService{
-		repo:       repo,
+		Repo:       repo,
 		jwtService: jwtService,
 	}
 }
@@ -37,7 +37,7 @@ func (s *UserService) Create(ctx context.Context, user *models.User) (*models.Us
 	}
 	user.Password = hashedPassword
 
-	userID, err := s.repo.UploadUser(ctx, user)
+	userID, err := s.Repo.UploadUser(ctx, user)
 	if err != nil {
 		return nil, fmt.Errorf("failed to save user: %w", err)
 	}
@@ -47,7 +47,7 @@ func (s *UserService) Create(ctx context.Context, user *models.User) (*models.Us
 }
 
 func (s *UserService) Login(ctx context.Context, email, password string) (string, error) {
-	user, err := s.repo.GetUserByEmail(ctx, email)
+	user, err := s.Repo.GetUserByEmail(ctx, email)
 	if err != nil {
 		return "", fmt.Errorf("User not found: %w", err)
 	}
@@ -65,7 +65,7 @@ func (s *UserService) Login(ctx context.Context, email, password string) (string
 }
 
 func (s *UserService) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
-	user, err := s.repo.GetUserByEmail(ctx, email)
+	user, err := s.Repo.GetUserByEmail(ctx, email)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to get user by email: %w", err)
 	}
