@@ -9,11 +9,11 @@ import (
 )
 
 type NotesHandler struct {
-	notesService *services.NotesService
+	Service *services.NotesService
 }
 
-func NewNotesHandler(notesService *services.NotesService) *NotesHandler {
-	return &NotesHandler{notesService: notesService}
+func NewNotesHandler(s *services.NotesService) *NotesHandler {
+	return &NotesHandler{Service: s}
 }
 
 type UploadRequest struct {
@@ -49,7 +49,7 @@ func (h *NotesHandler) Upload(c *gin.Context) {
 
 	userID := getUserID(c)
 
-	s3Path, err := h.notesService.SaveNote(c.Request.Context(), userID, req.Title, req.Content)
+	s3Path, err := h.Service.SaveNote(c.Request.Context(), userID, req.Title, req.Content)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -70,7 +70,7 @@ func (h *NotesHandler) Retrieve(c *gin.Context) {
 
 	userID := getUserID(c)
 
-	content, err := h.notesService.RetrieveNote(c.Request.Context(), userID, req.Title)
+	content, err := h.Service.RetrieveNote(c.Request.Context(), userID, req.Title)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -92,7 +92,7 @@ func (h *NotesHandler) Update(c *gin.Context) {
 
 	userID := getUserID(c)
 
-	if err := h.notesService.UpdateNote(c.Request.Context(), userID, req.Title, req.NewContent); err != nil {
+	if err := h.Service.UpdateNote(c.Request.Context(), userID, req.Title, req.NewContent); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -112,7 +112,7 @@ func (h *NotesHandler) Delete(c *gin.Context) {
 
 	userID := getUserID(c)
 
-	if err := h.notesService.DeleteNote(c.Request.Context(), userID, req.Title); err != nil {
+	if err := h.Service.DeleteNote(c.Request.Context(), userID, req.Title); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

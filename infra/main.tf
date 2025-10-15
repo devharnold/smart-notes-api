@@ -7,4 +7,4 @@ resource "aws_s3_bucket" "notes" {
     bucket = "notes-bucket"
 }
 
-# DynamoDB resource
+#

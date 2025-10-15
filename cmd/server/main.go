@@ -1,35 +1,53 @@
 package main
 
 import (
-	"net/http"
+	"smart-notes-api/internal/handlers"
+
 	"github.com/gin-gonic/gin"
 
-
-	"context"
 	"log"
-	"smart-notes-api/internal/db"
 	"smart-notes-api/internal/repositories"
 	"smart-notes-api/internal/services"
-	"smart-notes-api/internal/storage"
 )
 
 func main() {
 	r := gin.Default()
-	db.Init()
-	defer db.Close()
 
-	fileRepo	:= &repositories.FileRepo{}
-	s3Client	:= storage.NewS3Client()
-	FileService	:= &services.FileService{Repo: fileRepo, S3: s3Client}
+	// dependencies
+	userRepo := &repositories.UsersRepository{}
+	notesRepo := &repositories.NotesMeta{}
 
+	// services
+	userService := &services.UserService{Repo: userRepo}
+	noteService := &services.NotesService{Repo: notesRepo}
 
-	err := fileService.UploadUserFile(context.Background(), 1, "", []byte())
-	if err != nil {
+	// Handlers
+	userHandler := handlers.NewUserHandler(userService)
+	notesHandler := handlers.NewNotesHandler(noteService)
 
+	// Routes
+	api := r.Group("/api")
+	{
+		userRoutes := api.Group("/users")
+		{
+			userRoutes.POST("/", (*userHandler).Register)
+			userRoutes.GET("/:email", (*userHandler).GetUserByEmail)
+		}
+		noteRoutes := api.Group("/notes")
+		{
+			noteRoutes.POST("/", (*notesHandler).Upload)
+			noteRoutes.GET("/:title", (*notesHandler).Retrieve)
+			noteRoutes.PUT("/:title", (*notesHandler).Update)
+			noteRoutes.DELETE("/:title", (*notesHandler).Delete)
+		}
+	}
+
+	// health check
+	r.GET("/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{"status": "OK"})
+	})
+
+	if err := r.Run(":8080"); err != nil {
+		log.Fatalf("failed to start server: %v", err)
 	}
 }
-
-func UploadFile
-
-
-// TODO: Clean up the main.go file, also handle the http routes
