@@ -13,7 +13,7 @@ COPY *.go ./
 # Compile the Application
 RUN CGO_ENABLED=0 GOOS=linux go build -o /smart-notes-api
 
-EXPOSE 8081
+EXPOSE 8080
 
 # Tell Docker what to run
 CMD ["/docker-smart-notes-api"]

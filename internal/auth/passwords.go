@@ -1,9 +1,6 @@
 package auth
 
 import (
-	"fmt"
-
-	"github.com/quic-go/quic-go/interop/utils"
 	"golang.org/x/crypto/bcrypt"
 )
 

@@ -1,12 +1,8 @@
 provider "aws" {
-    region = "us-east-1"
+    region = var.region
 }
 
 # s3 bucket resource
-resource "aws_s3_bucket" "notes_bucket" {
-    bucket = "notes-bucket"
-    tags   = {
-          Name         = "FirstNotesBucket"
-          Environment  = "Development"
-    }
+resource "aws_s3_bucket" "notes" {
+    bucket = var.bucket_name
 }
