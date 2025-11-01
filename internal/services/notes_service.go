@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	// "smart-notes-api/internal/auth"
 	"smart-notes-api/internal/repositories"
 	"smart-notes-api/internal/storage"
 	"strings"
@@ -26,7 +25,14 @@ func NewNotesService(s3 *storage.S3Client, repo *repositories.NotesMeta) *NotesS
 	}
 }
 
-func (s *NotesService) SaveNote(ctx context.Context, userID int, title string, content string) (string, error) {
+type NotesServiceImpl interface {
+	SaveNote(ctx context.Context, userID int, title, content string) (string, error)
+	RetrieveNote(ctx context.Context, userID int, title string) (string, error)
+	UpdateNote(ctx context.Context, userID int, title, newContent string) (string, error)
+	DeleteNote(ctx context.Context, userID int, title string) (string, error)
+}
+
+func (s *NotesService) SaveNote(ctx context.Context, userID int, title, content string) (string, error) {
 	// first insert into DB, to help us get the noteID
 	meta := repositories.NotesMeta{
 		UserID: userID,
@@ -91,7 +97,7 @@ func (s *NotesService) RetrieveNote(ctx context.Context, UserID int, title strin
 }
 
 // Update the existing text in S3, but we keep the same key
-func (s *NotesService) UpdateNote(ctx context.Context, userID int, title string, newContent string) error {
+func (s *NotesService) UpdateNote(ctx context.Context, userID int, title, newContent string) error {
 	var s3Key string
 	query := "SELECT s3_key FROM notes WHERE user_id = $1 AND title = $2"
 	if err := storage.Pool.QueryRow(ctx, query, userID, title).Scan(&s3Key); err != nil {
