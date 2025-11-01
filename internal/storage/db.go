@@ -7,11 +7,13 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/joho/godotenv"
 )
 
 var Pool *pgxpool.Pool
 
 func init() {
+	_ = godotenv.Load("/root/.env")
 	dsn := os.Getenv("DB_URL")
 	if dsn == "" {
 		log.Fatal("Database URL is required")
