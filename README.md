@@ -14,17 +14,13 @@ A secure REST API where users can register, log in, and manage personal notes. N
     - AWS S3 (storage)
     - Docker
 
-- **sync dependencies:**
-    - go mod tidy
-
-
 ### Cloning the repo
 
 ```
 git clone https://github.com/devharnold/smart-notes-api.git
 ```
 
-### Sync Dependancies
+### Sync Dependencies
 
 ```
 go mod tidy
